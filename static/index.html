@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Input dan Tampilan Data Kompetisi</title>
+</head>
+<body>
+    <h1>Input Data Kompetisi</h1>
+    <form id="form_data" method="post">
+        <label for="nama">Nama:</label>
+        <input type="text" id="nama" name="nama" required><br>
+
+        <label for="nama_kampus">Nama Universitas:</label>
+        <input type="text" id="nama_kampus" name="nama_kampus" required><br>
+
+        <label for="prodi">Prodi:</label>
+        <input type="text" id="prodi" name="prodi" required><br>
+
+        <label for="semester">Semester:</label>
+        <input type="text" id="semester" name="semester" required><br>
+
+        <input type="submit" value="Submit">
+    </form>
+
+    <h1>Data Kompetisi</h1>
+    <table id="table_data" border="1">
+        <thead>
+            <tr>
+                <th>Nama</th>
+                <th>Nama Universitas</th>
+                <th>Prodi</th>
+                <th>Semester</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+
+    <script>
+        // Menghubungkan dengan server
+        const conn = new WebSocket('ws://localhost:8765');
+
+        // Memproses pesan yang diterima dari server
+        conn.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+
+            if (data.action === 'tampilkan_data') {
+                tampilkan_data(data.data);
+            }
+        };
+
+        // Menambahkan data ke tabel
+        function tambah_data(nama, nama_kampus, prodi, semester) {
+            const row = `<tr>
+                <td>${nama}</td>
+                <td>${nama_kampus}</td>
+                <td>${prodi}</td>
+                <td>${semester}</td>
+            </tr>`;
+
+            document.getElementById('table_data').getElementsByTagName('tbody')[0].innerHTML += row;
+        }
+
+        // Menampilkan data dari server ke tabel
+        function tampilkan_data(data) {
+            for (let i = 0; i < data.length; i++) {
+                tambah_data(data[i].nama, data[i].nama_kampus, data[i].prodi, data[i].semester);
+            }
+        }
+
+        // Mengirimkan data dari form ke server
+        document.getElementById('form_data').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const data = {
+                nama: document.getElementById('nama').value,
+                nama_kampus: document.getElementById('nama_kampus').value,
+                prodi: document.getElementById('prodi').value,
+                semester: document.getElementById('semester').value
+            };
+        });
+    </script>
+</body>
+</html>
